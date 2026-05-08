@@ -89,13 +89,22 @@ function PoseVisual() {
         <svg viewBox="0 0 200 310" width="180" height="280">
           {bones.map(([a, b]) => {
             const ja = jMap[a]; const jb = jMap[b];
-            return <motion.line key={`${a}-${b}`} x1={ja.cx} y1={ja.cy} x2={jb.cx} y2={jb.cy}
-              stroke="#00F5A0" strokeWidth="2" strokeLinecap="round"
-              animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 2.5, delay: Math.random() * 1 }} />;
+            return <motion.line key={`${a}-${b}`} 
+              x1={ja.cx} y1={ja.cy} x2={jb.cx} y2={jb.cy}
+              initial={{ opacity: 0.5 }}
+              stroke="#00F5A0" strokeWidth={2} strokeLinecap="round"
+              animate={{ opacity: [0.5, 1, 0.5] }} 
+              transition={{ repeat: Infinity, duration: 2.5, delay: Math.random() * 1 }} />;
           })}
           {joints.map(j => (
-            <motion.circle key={j.id} cx={j.cx} cy={j.cy} r={j.r ?? 5} fill="#00F5A0"
-              animate={{ r: j.r ? [j.r, j.r + 2, j.r] : [5, 7, 5], opacity: [0.7, 1, 0.7] }}
+            <motion.circle key={j.id} 
+              cx={j.cx} cy={j.cy} 
+              initial={{ r: j.r ?? 5, opacity: 0.7 }}
+              r={j.r ?? 5} fill="#00F5A0"
+              animate={{ 
+                r: j.r ? [j.r, j.r + 2, j.r] : [5, 7, 5], 
+                opacity: [0.7, 1, 0.7] 
+              }}
               transition={{ repeat: Infinity, duration: 1.8, delay: Math.random() * 1.5 }} />
           ))}
           {/* confidence score labels */}
@@ -222,15 +231,21 @@ function FormVisual() {
           {bones.map(([a, b]) => {
             const ja = jMap[a]; const jb = jMap[b];
             const bad = mode === 'bad' && (badJoints.includes(a) || badJoints.includes(b));
-            return <motion.line key={`${a}-${b}`} x1={ja.cx} y1={ja.cy} x2={jb.cx} y2={jb.cy}
+            return <motion.line key={`${a}-${b}`} 
+              initial={{ x1: ja.cx, y1: ja.cy, x2: jb.cx, y2: jb.cy }}
+              x1={ja.cx} y1={ja.cy} x2={jb.cx} y2={jb.cy}
               animate={{ x1: ja.cx, y1: ja.cy, x2: jb.cx, y2: jb.cy }}
               transition={{ duration: 0.6, ease: 'easeInOut' }}
-              stroke={bad ? '#ef4444' : '#00F5A0'} strokeWidth="2" strokeLinecap="round" />;
+              stroke={bad ? '#ef4444' : '#00F5A0'} strokeWidth={2} strokeLinecap="round" />;
           })}
           {joints.map(j => {
             const bad = mode === 'bad' && badJoints.includes(j.id);
-            return <motion.circle key={j.id} animate={{ cx: j.cx, cy: j.cy }} transition={{ duration: 0.6, ease: 'easeInOut' }}
-              r={j.r ?? 5} fill={bad ? '#ef4444' : '#00F5A0'}
+            const radius = j.r ?? 5;
+            return <motion.circle key={j.id} 
+              initial={{ cx: j.cx, cy: j.cy }}
+              animate={{ cx: j.cx, cy: j.cy }} 
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
+              cx={j.cx} cy={j.cy} r={radius} fill={bad ? '#ef4444' : '#00F5A0'}
               style={{ filter: bad ? 'drop-shadow(0 0 6px #ef4444)' : 'drop-shadow(0 0 4px #00F5A0)' }} />;
           })}
         </svg>

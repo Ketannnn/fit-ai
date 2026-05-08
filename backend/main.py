@@ -4,14 +4,42 @@ import cv2
 import tempfile
 import ExerciseAiTrainer as exercise
 from chatbot import chat_ui
+from voice_assistant import inject_voice_assistant
 import time
+import requests
 
 def main():
     # Set configuration for the theme before any other Streamlit command
     st.set_page_config(page_title='Fitness AI Coach', layout='centered')
-    
+
+    # ── User Profile from React Auth ─────────────────────────────────────────
+    # React passes the logged-in username as a query param: ?username=yash
+    query_params = st.query_params
+    username = query_params.get("username", None)
+    user_profile = None
+
+    if username:
+        try:
+            resp = requests.get(f"http://127.0.0.1:8000/profile/{username}", timeout=3)
+            if resp.status_code == 200:
+                user_profile = resp.json()
+                st.session_state["user_profile"] = user_profile
+        except Exception:
+            pass  # If auth API is down, continue without personalisation
+    else:
+        # No username — show a redirect hint (non-blocking)
+        st.info(
+            "💡 **Tip:** Log in from the [FitAI web app](http://localhost:5173/login) "
+            "to get personalised AI coaching based on your profile.",
+            icon="🔑"
+        )
+    # ─────────────────────────────────────────────────────────────────────────
+
     # Define App Title and Structure
     st.title('Fitness AI Coach')
+
+    # Inject Voice Assistant (Floating Button)
+    inject_voice_assistant(user_profile=user_profile)
 
     # 2 Options: Video, WebCam, Auto Classify, chatbot
     options = st.sidebar.selectbox('Select Option', ('Video', 'WebCam', 'Auto Classify', 'chatbot'))
@@ -19,7 +47,7 @@ def main():
     if options == 'chatbot':
         st.markdown('-------')
         st.markdown("The chatbot can make mistakes. Check important info.")
-        chat_ui()
+        chat_ui(user_profile=user_profile)
 
     # Define Operations if Video Option is selected
     if options == 'Video':
@@ -175,9 +203,14 @@ def main():
                     exer.shoulder_press(cap, counter=counter, stage=stage)
                     break
 
-if __name__ == '__main__':
-    def load_css():
+def load_css():
+    try:
         with open("static/styles.css", "r") as f:
             css = f"<style>{f.read()}</style>"
             st.markdown(css, unsafe_allow_html=True)
+    except FileNotFoundError:
+        pass
+
+if __name__ == '__main__':
+    load_css()
     main()

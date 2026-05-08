@@ -1,11 +1,15 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 export default function CTAFooter() {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] });
   const y = useTransform(scrollYProgress, [0, 1], [60, 0]);
   const opacity = useTransform(scrollYProgress, [0, 0.6], [0, 1]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -32,19 +36,42 @@ export default function CTAFooter() {
           </p>
 
           {/* CTA Button */}
-          <motion.button
-            whileHover={{ scale: 1.04, boxShadow: '0 0 70px rgba(0,245,160,0.5)' }}
-            whileTap={{ scale: 0.98 }}
-            style={{
-              background: 'linear-gradient(135deg, #00F5A0, #00ec9a)',
-              color: '#002e1e', fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: '1.15rem',
-              padding: '1.1rem 3.5rem', borderRadius: 9999, border: 'none', cursor: 'pointer',
-              boxShadow: '0 0 40px rgba(0,245,160,0.35)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            START TODAY →
-          </motion.button>
+          {user ? (
+            <motion.a
+              id="cta-launch-app-btn"
+              href={`http://localhost:8501?username=${user.username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              whileHover={{ scale: 1.04, boxShadow: '0 0 70px rgba(0,245,160,0.5)' }}
+              whileTap={{ scale: 0.98 }}
+              style={{
+                background: 'linear-gradient(135deg, #00F5A0, #00ec9a)',
+                color: '#002e1e', fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: '1.15rem',
+                padding: '1.1rem 3.5rem', borderRadius: 9999,
+                boxShadow: '0 0 40px rgba(0,245,160,0.35)',
+                letterSpacing: '0.04em', textDecoration: 'none',
+                display: 'inline-flex', alignItems: 'center', gap: 10,
+              }}
+            >
+              🚀 LAUNCH APP →
+            </motion.a>
+          ) : (
+            <motion.button
+              id="cta-start-btn"
+              whileHover={{ scale: 1.04, boxShadow: '0 0 70px rgba(0,245,160,0.5)' }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => navigate('/signup')}
+              style={{
+                background: 'linear-gradient(135deg, #00F5A0, #00ec9a)',
+                color: '#002e1e', fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: '1.15rem',
+                padding: '1.1rem 3.5rem', borderRadius: 9999, border: 'none', cursor: 'pointer',
+                boxShadow: '0 0 40px rgba(0,245,160,0.35)',
+                letterSpacing: '0.04em',
+              }}
+            >
+              START TODAY →
+            </motion.button>
+          )}
 
           <p style={{ marginTop: 24, color: '#2e3f52', fontFamily: 'Inter,sans-serif', fontSize: '0.82rem', letterSpacing: '0.02em' }}>
             <span style={{ color: '#00F5A0' }}>✓</span> Free forever plan &nbsp;&nbsp;

@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap');
+
+/* Main App Colors */
+.stApp {
+    background-color: #0a0f1e;
+    color: #e8f4ff;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Sidebar Colors */
+[data-testid="stSidebar"] {
+    background-color: #0f172a !important;
+}
+
+/* Headings Colors */
+h1, h2, h3 {
+    font-family: 'Manrope', sans-serif !important;
+    background: linear-gradient(135deg, #00F5A0, #00c8ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Button Colors */
+.stButton > button {
+    background: linear-gradient(135deg, #00F5A0, #00c8ff) !important;
+    color: #002e1e !important;
+}
+
+/* Selectbox Colors */
+.stSelectbox div[data-baseweb="select"] {
+    background-color: rgba(18, 25, 45, 0.6) !important;
+    color: #e8f4ff !important;
+}
+
+div[data-baseweb="base-input"] {
+    background-color: rgba(18, 25, 45, 0.6) !important;
+}

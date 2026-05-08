@@ -1,5 +1,11 @@
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+
 export default function Hero() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   return (
+
     <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden', paddingTop: 72 }}>
       {/* Layered background glows */}
       <div style={{ position: 'absolute', inset: 0, background: '#0a0f1e', zIndex: 0 }} />
@@ -32,15 +38,38 @@ export default function Hero() {
 
           {/* CTAs */}
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
-            <button style={{
-              background: 'linear-gradient(135deg, #00F5A0, #00ec9a)',
-              color: '#002e1e', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1rem',
-              padding: '0.9rem 2.2rem', borderRadius: 9999, border: 'none', cursor: 'pointer',
-              boxShadow: '0 0 32px rgba(0,245,160,0.4)', transition: 'all 0.3s ease',
-            }}
-              onMouseOver={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 50px rgba(0,245,160,0.6)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
-              onMouseOut={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 32px rgba(0,245,160,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
-            >Get Started Free →</button>
+            {user ? (
+              /* ── Logged-in CTA ── */
+              <a
+                id="hero-launch-app-btn"
+                href={`http://localhost:8501?username=${user.username}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  background: 'linear-gradient(135deg, #00F5A0, #00ec9a)',
+                  color: '#002e1e', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1rem',
+                  padding: '0.9rem 2.2rem', borderRadius: 9999, border: 'none', cursor: 'pointer',
+                  boxShadow: '0 0 32px rgba(0,245,160,0.4)', transition: 'all 0.3s ease',
+                  textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8,
+                }}
+                onMouseOver={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 50px rgba(0,245,160,0.6)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                onMouseOut={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 32px rgba(0,245,160,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+              >🚀 Launch App →</a>
+            ) : (
+              /* ── Logged-out CTA ── */
+              <button
+                id="hero-get-started-btn"
+                onClick={() => navigate('/signup')}
+                style={{
+                  background: 'linear-gradient(135deg, #00F5A0, #00ec9a)',
+                  color: '#002e1e', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1rem',
+                  padding: '0.9rem 2.2rem', borderRadius: 9999, border: 'none', cursor: 'pointer',
+                  boxShadow: '0 0 32px rgba(0,245,160,0.4)', transition: 'all 0.3s ease',
+                }}
+                onMouseOver={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 50px rgba(0,245,160,0.6)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                onMouseOut={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 32px rgba(0,245,160,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+              >Get Started Free →</button>
+            )}
             <button style={{ background: 'transparent', color: '#8a9bb0', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.95rem', padding: '0.9rem 2rem', borderRadius: 9999, border: '1px solid rgba(138,155,176,0.25)', cursor: 'pointer', transition: 'all 0.25s ease' }}
               onMouseOver={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,245,160,0.3)'; (e.currentTarget as HTMLElement).style.color = '#d9e7fc'; }}
               onMouseOut={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(138,155,176,0.25)'; (e.currentTarget as HTMLElement).style.color = '#8a9bb0'; }}
@@ -80,19 +109,19 @@ export default function Hero() {
             {/* Skeleton scan */}
             <div style={{ height: 190, background: 'rgba(5,15,30,0.8)', borderRadius: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20, position: 'relative', overflow: 'hidden', border: '1px solid rgba(0,245,160,0.08)' }}>
               <div style={{ position: 'absolute', left: 0, right: 0, height: 2, background: 'linear-gradient(90deg, transparent, #00F5A0, transparent)', animation: 'scanLine 2.5s ease-in-out infinite', opacity: 0.8 }} />
-              <svg viewBox="0 0 100 160" width="72" style={{ opacity: 0.75 }}>
-                <circle cx="50" cy="20" r="8" fill="none" stroke="#00F5A0" strokeWidth="1.5"/>
-                <line x1="50" y1="28" x2="50" y2="80" stroke="#00F5A0" strokeWidth="1.5"/>
-                <line x1="50" y1="45" x2="25" y2="65" stroke="#00F5A0" strokeWidth="1.5"/>
-                <line x1="50" y1="45" x2="75" y2="65" stroke="#00F5A0" strokeWidth="1.5"/>
-                <line x1="25" y1="65" x2="20" y2="85" stroke="#00ec9a" strokeWidth="1.5"/>
-                <line x1="75" y1="65" x2="80" y2="85" stroke="#00ec9a" strokeWidth="1.5"/>
-                <line x1="50" y1="80" x2="35" y2="120" stroke="#00F5A0" strokeWidth="1.5"/>
-                <line x1="50" y1="80" x2="65" y2="120" stroke="#00F5A0" strokeWidth="1.5"/>
-                <line x1="35" y1="120" x2="32" y2="155" stroke="#00F5A0" strokeWidth="1.5"/>
-                <line x1="65" y1="120" x2="68" y2="155" stroke="#00F5A0" strokeWidth="1.5"/>
+              <svg viewBox="0 0 100 160" width={72} style={{ opacity: 0.75 }}>
+                <circle cx={50} cy={20} r={8} fill="none" stroke="#00F5A0" strokeWidth={1.5}/>
+                <line x1={50} y1={28} x2={50} y2={80} stroke="#00F5A0" strokeWidth={1.5}/>
+                <line x1={50} y1={45} x2={25} y2={65} stroke="#00F5A0" strokeWidth={1.5}/>
+                <line x1={50} y1={45} x2={75} y2={65} stroke="#00F5A0" strokeWidth={1.5}/>
+                <line x1={25} y1={65} x2={20} y2={85} stroke="#00ec9a" strokeWidth={1.5}/>
+                <line x1={75} y1={65} x2={80} y2={85} stroke="#00ec9a" strokeWidth={1.5}/>
+                <line x1={50} y1={80} x2={35} y2={120} stroke="#00F5A0" strokeWidth={1.5}/>
+                <line x1={50} y1={80} x2={65} y2={120} stroke="#00F5A0" strokeWidth={1.5}/>
+                <line x1={35} y1={120} x2={32} y2={155} stroke="#00F5A0" strokeWidth={1.5}/>
+                <line x1={65} y1={120} x2={68} y2={155} stroke="#00F5A0" strokeWidth={1.5}/>
                 {[{cx:25,cy:65},{cx:75,cy:65},{cx:35,cy:120},{cx:65,cy:120},{cx:50,cy:45}].map((p,i) => (
-                  <circle key={i} cx={p.cx} cy={p.cy} r="3.5" fill="#00F5A0" opacity="0.9"/>
+                  <circle key={i} cx={p.cx} cy={p.cy} r={3.5} fill="#00F5A0" opacity={0.9}/>
                 ))}
               </svg>
             </div>

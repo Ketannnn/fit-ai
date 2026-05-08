@@ -43,9 +43,18 @@ cd backend
 python -m venv venv
 # On Windows: venv\Scripts\activate | On Mac/Linux: source venv/bin/activate
 pip install -r requirements.txt
-streamlit run main.py
+python -m streamlit run main.py
 ```
 *(Note: Be sure your webcam is configured correctly if you plan to use live WebCam modules)*
+
+# Use for both the streamlit and backend server
+.\.venv312\Scripts\activate.ps1 
+# Terminal 1 (already running)
+python -m streamlit run main.py   # :8501
+# Terminal 2 — start this new one
+uvicorn auth_api:app --port 8000  # :8000
+# Terminal 3 (already running)
+npm run dev                        # :5173
 
 ---
 
