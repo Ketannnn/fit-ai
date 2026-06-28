@@ -337,8 +337,15 @@ class Exercise:
             for idx, (exercise, count) in enumerate(counters.items()):
                 short_name = exercise_name_map.get(exercise, exercise)
                 draw_styled_text(frame, f"{short_name}: {count}", (10, (idx + 1) * vertical_spacing))
+            
+            # Allow Streamlit to handle events
+            time.sleep(0.01)
 
             stframe.image(frame, channels='BGR', use_container_width=True)
+            st.session_state['current_counters'] = counters.copy()
+            
+            if not st.session_state.get('exercise_running', True):
+                break
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
@@ -484,6 +491,13 @@ class Exercise:
 
                 self.repetitions_counter(img, counter)
                 stframe.image(img, channels='BGR', use_container_width=True)
+                st.session_state['current_reps'] = counter
+                
+                # Allow Streamlit to handle events
+                time.sleep(0.01)
+                
+                if not st.session_state.get('exercise_running', True):
+                    break
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
