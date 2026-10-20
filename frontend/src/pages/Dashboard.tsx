@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import type React from 'react';
 import { useAuth, type BmiHistoryPoint } from '../context/AuthContext';
+import { STREAMLIT_URL } from '../config';
 import { 
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area 
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area 
 } from 'recharts';
 import { 
-  Activity, User, Scale, Ruler, TrendingUp, Save, LogOut, ChevronRight, 
-  Target, Zap, Flame, Calendar, Info
+  Activity, Scale, TrendingUp, Save, 
+  Target, Flame, Calendar, Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 export default function Dashboard() {
-  const { user, updateStats, getBmiHistory, logout } = useAuth();
+  const { user, updateStats, getBmiHistory } = useAuth();
   const [height, setHeight] = useState(user?.height_cm || 170);
   const [weight, setWeight] = useState(user?.weight_kg || 70);
   const [history, setHistory] = useState<BmiHistoryPoint[]>([]);
@@ -108,13 +110,13 @@ export default function Dashboard() {
                 transition: 'all 0.25s ease',
                 display: 'inline-flex', alignItems: 'center', gap: 8,
               }}
-              onMouseOver={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#e8f4ff'; }}
-              onMouseOut={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#8a9bb0'; }}
+              onMouseOver={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = '#e8f4ff'; }}
+              onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#8a9bb0'; }}
             >
               ← Back to Home
             </Link>
             <a
-              href={`http://localhost:8501?username=${user.username}`}
+              href={`${STREAMLIT_URL}?username=${user.username}`}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -247,7 +249,7 @@ export default function Dashboard() {
                   width: '100%',
                   padding: '1rem',
                   borderRadius: 14,
-                  border: 'none',
+                  border: '1px solid rgba(0,245,160,0.2)',
                   background: isUpdating ? 'rgba(0,245,160,0.2)' : 'rgba(0,245,160,0.1)',
                   color: '#00F5A0',
                   fontFamily: 'Manrope, sans-serif',
@@ -259,7 +261,6 @@ export default function Dashboard() {
                   justifyContent: 'center',
                   gap: 10,
                   transition: 'all 0.2s ease',
-                  border: '1px solid rgba(0,245,160,0.2)'
                 }}
               >
                 {isUpdating ? 'Saving...' : <><Save size={18} /> Save Stats</>}

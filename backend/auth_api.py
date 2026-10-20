@@ -17,6 +17,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import bcrypt
 import requests
+from dotenv import load_dotenv
+load_dotenv()
+
+LM_STUDIO_BASE_URL = os.getenv("LM_STUDIO_BASE_URL", "http://127.0.0.1:1234/v1")
+LM_STUDIO_MODEL = os.getenv("LM_STUDIO_MODEL", "llama-3-8b-lexi-uncensored")
+LM_STUDIO_CHAT_URL = f"{LM_STUDIO_BASE_URL.rstrip('/')}/chat/completions"
+
 from chatbot import build_system_prompt, fetch_bmi_context
 
 # ── DB Setup ────────────────────────────────────────────────────────────────
@@ -379,7 +386,7 @@ def voice_assistant_chat(data: VoiceChatRequest):
     messages.append({"role": "user", "content": data.message})
 
     payload = {
-        "model": "llama-3-8b-lexi-uncensored",
+        "model": LM_STUDIO_MODEL,
         "messages": messages,
         "temperature": 0.7,
         "max_tokens": 150
@@ -387,7 +394,7 @@ def voice_assistant_chat(data: VoiceChatRequest):
 
     try:
         res = requests.post(
-            'http://127.0.0.1:1234/v1/chat/completions',
+            LM_STUDIO_CHAT_URL,
             json=payload,
             timeout=90
         )
@@ -440,14 +447,14 @@ Do NOT include any markdown formatting like ```json. Do NOT include any explanat
 """
     
     payload = {
-        "model": "llama-3-8b-lexi-uncensored",
+        "model": LM_STUDIO_MODEL,
         "messages": [{"role": "system", "content": system_prompt}],
         "temperature": 0.7,
         "max_tokens": 800
     }
     
     try:
-        res = requests.post('http://127.0.0.1:1234/v1/chat/completions', json=payload, timeout=90)
+        res = requests.post(LM_STUDIO_CHAT_URL, json=payload, timeout=90)
         if res.status_code == 200:
             content = res.json()['choices'][0]['message']['content']
             # Robustly extract JSON block
@@ -539,14 +546,14 @@ Do NOT include any markdown formatting like ```json. Do NOT include any explanat
 """
     
     payload = {
-        "model": "llama-3-8b-lexi-uncensored",
+        "model": LM_STUDIO_MODEL,
         "messages": [{"role": "system", "content": system_prompt}],
         "temperature": 0.7,
         "max_tokens": 1000
     }
     
     try:
-        res = requests.post('http://127.0.0.1:1234/v1/chat/completions', json=payload, timeout=90)
+        res = requests.post(LM_STUDIO_CHAT_URL, json=payload, timeout=90)
         if res.status_code == 200:
             content = res.json()['choices'][0]['message']['content']
             # Robustly extract JSON block

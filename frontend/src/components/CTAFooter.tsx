@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { STREAMLIT_URL } from '../config';
 
 export default function CTAFooter() {
   const ref = useRef<HTMLDivElement>(null);
@@ -39,7 +40,7 @@ export default function CTAFooter() {
           {user ? (
             <motion.a
               id="cta-launch-app-btn"
-              href={`http://localhost:8501?username=${user.username}`}
+              href={`${STREAMLIT_URL}?username=${user.username}`}
               target="_blank"
               rel="noopener noreferrer"
               whileHover={{ scale: 1.04, boxShadow: '0 0 70px rgba(0,245,160,0.5)' }}

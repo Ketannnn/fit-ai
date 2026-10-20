@@ -9,6 +9,9 @@ import tensorflow as tf
 from tensorflow.keras.models import load_model
 import mediapipe as mp
 import time
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
 
 # Initialize MediaPipe pose
 mp_pose = mp.solutions.pose
@@ -136,19 +139,19 @@ def count_repetition_shoulder_press(detector, img, landmark_list, stage, counter
 class Exercise:
     def __init__(self):
         try:
-            self.lstm_model = load_model('final_forthesis_bidirectionallstm_and_encoders_exercise_classifier_model.h5')
+            self.lstm_model = load_model(str(BASE_DIR / 'final_forthesis_bidirectionallstm_and_encoders_exercise_classifier_model.h5'))
         except Exception as e:
             print(f"Error loading LSTM model: {e}")
             self.lstm_model = None
         
         try:
-            self.scaler = joblib.load('thesis_bidirectionallstm_scaler.pkl')
+            self.scaler = joblib.load(str(BASE_DIR / 'thesis_bidirectionallstm_scaler.pkl'))
         except Exception as e:
             print(f"Error loading scaler: {e}")
             self.scaler = None
         
         try:
-            self.label_encoder = joblib.load('thesis_bidirectionallstm_label_encoder.pkl')
+            self.label_encoder = joblib.load(str(BASE_DIR / 'thesis_bidirectionallstm_label_encoder.pkl'))
             self.exercise_classes = self.label_encoder.classes_
         except Exception as e:
             print(f"Error loading label encoder: {e}")

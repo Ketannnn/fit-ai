@@ -2,21 +2,32 @@ import os
 from dotenv import load_dotenv
 import streamlit as st
 from typing import Literal, Optional
-from langchain_community.chat_models import ChatOpenAI
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferWindowMemory
+try:
+    from langchain_community.chat_models import ChatOpenAI
+except ImportError:
+    from langchain_community.chat_models.openai import ChatOpenAI
+try:
+    from langchain.chains import ConversationChain
+    from langchain.memory import ConversationBufferWindowMemory
+except ImportError:
+    from langchain_classic.chains import ConversationChain
+    from langchain_classic.memory import ConversationBufferWindowMemory
 from dataclasses import dataclass
 
 # Load environment variables from .env file
 load_dotenv()
 
+LM_STUDIO_BASE_URL = os.getenv("LM_STUDIO_BASE_URL", "http://127.0.0.1:1234/v1")
+LM_STUDIO_MODEL = os.getenv("LM_STUDIO_MODEL", "llama-3-8b-lexi-uncensored")
+LM_STUDIO_API_KEY = os.getenv("LM_STUDIO_API_KEY", "lm-studio")
+FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", "http://127.0.0.1:8000")
 
 import requests
 
 def fetch_bmi_context(username: str) -> str:
     """Fetch BMI history and return a short trend summary for the system prompt."""
     try:
-        resp = requests.get(f"http://127.0.0.1:8000/bmi-history/{username}", timeout=3)
+        resp = requests.get(f"{FASTAPI_BASE_URL}/bmi-history/{username}", timeout=3)
         if resp.status_code != 200:
             return ""
         history = resp.json()
@@ -76,10 +87,10 @@ def initialize_session_state(user_profile: Optional[dict] = None, bmi_context: s
         st.session_state.history = []
     if "conversation" not in st.session_state:
         llm = ChatOpenAI(
-            openai_api_base="http://127.0.0.1:1234/v1",
-            openai_api_key="lm-studio",
+            openai_api_base=LM_STUDIO_BASE_URL,
+            openai_api_key=LM_STUDIO_API_KEY,
             temperature=0.7,
-            model_name="llama-3-8b-lexi-uncensored"
+            model_name=LM_STUDIO_MODEL
         )
 
         # Use a lighter memory for local LLMs to prevent crashes

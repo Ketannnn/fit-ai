@@ -21,7 +21,7 @@ export default function HowItWorks() {
           {/* Dashed connector line (desktop only) */}
           <div style={{ position: 'absolute', top: 60, left: '18%', right: '18%', height: 1, background: 'repeating-linear-gradient(90deg, rgba(0,245,160,0.2) 0, rgba(0,245,160,0.2) 8px, transparent 8px, transparent 18px)', pointerEvents: 'none' }} />
 
-          {steps.map((s, i) => (
+          {steps.map((s) => (
             <div key={s.num} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', position: 'relative' }}>
               {/* Ghosted big number */}
               <div style={{ fontFamily: 'Manrope,sans-serif', fontWeight: 900, fontSize: '5rem', color: 'rgba(0,245,160,0.07)', lineHeight: 1, marginBottom: 8, letterSpacing: '-0.04em', userSelect: 'none' }}>{s.num}</div>

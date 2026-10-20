@@ -1,7 +1,8 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import axios from 'axios';
+import { API_BASE, STREAMLIT_URL } from '../config';
 
-const API_BASE = 'http://localhost:8000';
+export { API_BASE, STREAMLIT_URL };
 
 export interface UserProfile {
   username: string;

@@ -198,7 +198,6 @@ export default function HowToStart() {
 
   // Cards move left as scroll goes down — shift enough to reveal all 5 cards
   const x = useTransform(scrollYProgress, [0, 1], ['2%', '-72%']);
-  const activeIndex = useTransform(scrollYProgress, [0, 1], [0, STEPS.length - 1]);
 
   return (
     // Outer scroll container — tall enough for the scroll hijack

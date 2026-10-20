@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { STREAMLIT_URL } from '../config';
 
 export default function Hero() {
   const { user } = useAuth();
@@ -42,7 +43,7 @@ export default function Hero() {
               /* ── Logged-in CTA ── */
               <a
                 id="hero-launch-app-btn"
-                href={`http://localhost:8501?username=${user.username}`}
+                href={`${STREAMLIT_URL}?username=${user.username}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{

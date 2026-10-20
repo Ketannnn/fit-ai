@@ -4,6 +4,13 @@ import requests
 import json
 import datetime
 import time
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+LM_STUDIO_BASE_URL = os.getenv("LM_STUDIO_BASE_URL", "http://127.0.0.1:1234/v1")
+LM_STUDIO_MODEL = os.getenv("LM_STUDIO_MODEL", "llama-3-8b-lexi-uncensored")
+LM_STUDIO_CHAT_URL = f"{LM_STUDIO_BASE_URL.rstrip('/')}/chat/completions"
 
 from chatbot import build_system_prompt
 
@@ -53,7 +60,7 @@ def inject_voice_assistant(user_profile: dict = None):
                 messages.append({"role": "user", "content": f"{transcript}\n\n(IMPORTANT: Provide a 1-2 sentence summary ONLY. No lists.)"})
                 
                 payload = {
-                    "model": "llama-3-8b-lexi-uncensored",
+                    "model": LM_STUDIO_MODEL,
                     "messages": messages,
                     "temperature": 0.7,
                     "max_tokens": 100
@@ -62,7 +69,7 @@ def inject_voice_assistant(user_profile: dict = None):
                 start_time = time.time()
                 
                 res = requests.post(
-                    'http://127.0.0.1:1234/v1/chat/completions',
+                    LM_STUDIO_CHAT_URL,
                     json=payload,
                     timeout=90
                 )
