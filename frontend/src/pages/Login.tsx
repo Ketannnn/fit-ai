@@ -1,10 +1,12 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get('redirect') || '/dashboard';
 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +24,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(username.trim(), password);
-      navigate('/');
+      navigate(redirectPath);
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Login failed. Please try again.');
     } finally {
@@ -50,7 +52,7 @@ export default function Login() {
         position: 'relative', zIndex: 1,
       }}>
         {/* Logo */}
-        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, textDecoration: 'none' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 32, textDecoration: 'none' }}>
           <div style={{
             width: 32, height: 32, borderRadius: 8,
             background: 'linear-gradient(135deg, #00F5A0, #00c8ff)',
@@ -58,7 +60,7 @@ export default function Login() {
             fontFamily: 'Manrope, sans-serif', fontWeight: 900, fontSize: 16, color: '#002e1e',
           }}>F</div>
           <span style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '1.2rem', color: '#e8f4ff' }}>FitAI</span>
-        </a>
+        </Link>
 
         <h1 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '1.75rem', color: '#e8f4ff', marginBottom: 6, letterSpacing: '-0.02em' }}>
           Welcome back

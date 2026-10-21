@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
 import Navbar from './components/Navbar';
@@ -35,7 +35,13 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard defaultTab="analytics" />} />
+          <Route path="/trainer" element={<Dashboard defaultTab="trainer" />} />
+          <Route path="/app" element={<Dashboard defaultTab="trainer" />} />
+          <Route path="/live-trainer" element={<Dashboard defaultTab="trainer" />} />
+          <Route path="/workout" element={<Dashboard defaultTab="trainer" />} />
+          <Route path="/exercise-tracker" element={<Dashboard defaultTab="trainer" />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

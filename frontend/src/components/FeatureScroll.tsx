@@ -423,7 +423,7 @@ export default function FeatureScroll() {
   return (
     <>
       <ScrollProgressBar />
-      <div style={{ background: '#0a0f1e', position: 'relative' }}>
+      <div id="features" style={{ background: '#0a0f1e', position: 'relative' }}>
         {/* Section heading */}
         <div style={{ textAlign: 'center', padding: '100px 24px 60px', position: 'relative' }}>
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 800, height: 400, borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(0,245,160,0.04) 0%, transparent 60%)', pointerEvents: 'none' }} />

@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { STREAMLIT_URL } from '../config';
+import { motion, AnimatePresence } from 'framer-motion';
+import EmbeddedTrainer from './EmbeddedTrainer';
 
 export default function Hero() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  return (
+  const [showDemoModal, setShowDemoModal] = useState(false);
 
+  return (
     <section style={{ position: 'relative', minHeight: '100vh', display: 'flex', alignItems: 'center', overflow: 'hidden', paddingTop: 72 }}>
       {/* Layered background glows */}
       <div style={{ position: 'absolute', inset: 0, background: '#0a0f1e', zIndex: 0 }} />
@@ -41,46 +44,85 @@ export default function Hero() {
           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
             {user ? (
               /* ── Logged-in CTA ── */
-              <a
-                id="hero-launch-app-btn"
-                href={`${STREAMLIT_URL}?username=${user.username}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  background: 'linear-gradient(135deg, #00F5A0, #00ec9a)',
-                  color: '#002e1e', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1rem',
-                  padding: '0.9rem 2.2rem', borderRadius: 9999, border: 'none', cursor: 'pointer',
-                  boxShadow: '0 0 32px rgba(0,245,160,0.4)', transition: 'all 0.3s ease',
-                  textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 8,
-                }}
-                onMouseOver={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 50px rgba(0,245,160,0.6)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
-                onMouseOut={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 32px rgba(0,245,160,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
-              >🚀 Launch App →</a>
+              <>
+                <button
+                  id="hero-launch-app-btn"
+                  onClick={() => navigate('/trainer')}
+                  style={{
+                    background: 'linear-gradient(135deg, #00F5A0, #00ec9a)',
+                    color: '#002e1e', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1rem',
+                    padding: '0.9rem 2.2rem', borderRadius: 9999, border: 'none', cursor: 'pointer',
+                    boxShadow: '0 0 32px rgba(0,245,160,0.4)', transition: 'all 0.3s ease',
+                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                  }}
+                  onMouseOver={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 50px rgba(0,245,160,0.6)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                  onMouseOut={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 32px rgba(0,245,160,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+                >🚀 Launch Live Trainer →</button>
+
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    color: '#e8f4ff', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.95rem',
+                    padding: '0.9rem 1.8rem', borderRadius: 9999, border: '1px solid rgba(255,255,255,0.12)',
+                    cursor: 'pointer', transition: 'all 0.25s ease',
+                  }}
+                  onMouseOver={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,245,160,0.3)'; }}
+                  onMouseOut={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.12)'; }}
+                >📊 Dashboard</button>
+              </>
             ) : (
               /* ── Logged-out CTA ── */
-              <button
-                id="hero-get-started-btn"
-                onClick={() => navigate('/signup')}
-                style={{
-                  background: 'linear-gradient(135deg, #00F5A0, #00ec9a)',
-                  color: '#002e1e', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1rem',
-                  padding: '0.9rem 2.2rem', borderRadius: 9999, border: 'none', cursor: 'pointer',
-                  boxShadow: '0 0 32px rgba(0,245,160,0.4)', transition: 'all 0.3s ease',
-                }}
-                onMouseOver={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 50px rgba(0,245,160,0.6)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
-                onMouseOut={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 32px rgba(0,245,160,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
-              >Get Started Free →</button>
+              <>
+                <button
+                  id="hero-get-started-btn"
+                  onClick={() => navigate('/signup')}
+                  style={{
+                    background: 'linear-gradient(135deg, #00F5A0, #00ec9a)',
+                    color: '#002e1e', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1rem',
+                    padding: '0.9rem 2.2rem', borderRadius: 9999, border: 'none', cursor: 'pointer',
+                    boxShadow: '0 0 32px rgba(0,245,160,0.4)', transition: 'all 0.3s ease',
+                  }}
+                  onMouseOver={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 50px rgba(0,245,160,0.6)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+                  onMouseOut={e => { (e.currentTarget as HTMLElement).style.boxShadow = '0 0 32px rgba(0,245,160,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(0)'; }}
+                >Get Started Free →</button>
+
+                <button
+                  id="hero-launch-app-btn"
+                  onClick={() => navigate('/trainer')}
+                  style={{
+                    background: 'rgba(0,245,160,0.1)',
+                    color: '#00F5A0', fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '0.95rem',
+                    padding: '0.9rem 1.8rem', borderRadius: 9999, border: '1px solid rgba(0,245,160,0.3)',
+                    cursor: 'pointer', transition: 'all 0.25s ease',
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                  }}
+                  onMouseOver={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,245,160,0.18)'; }}
+                  onMouseOut={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,245,160,0.1)'; }}
+                >🚀 Launch App</button>
+              </>
             )}
-            <button style={{ background: 'transparent', color: '#8a9bb0', fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.95rem', padding: '0.9rem 2rem', borderRadius: 9999, border: '1px solid rgba(138,155,176,0.25)', cursor: 'pointer', transition: 'all 0.25s ease' }}
+
+            <button
+              id="hero-watch-demo-btn"
+              onClick={() => setShowDemoModal(true)}
+              style={{
+                background: 'transparent', color: '#8a9bb0', fontFamily: 'Inter, sans-serif',
+                fontWeight: 600, fontSize: '0.95rem', padding: '0.9rem 1.8rem', borderRadius: 9999,
+                border: '1px solid rgba(138,155,176,0.25)', cursor: 'pointer', transition: 'all 0.25s ease',
+                display: 'inline-flex', alignItems: 'center', gap: 6
+              }}
               onMouseOver={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(0,245,160,0.3)'; (e.currentTarget as HTMLElement).style.color = '#d9e7fc'; }}
               onMouseOut={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(138,155,176,0.25)'; (e.currentTarget as HTMLElement).style.color = '#8a9bb0'; }}
-            >Watch Demo</button>
+            >
+              <span>⚡ Watch Demo</span>
+            </button>
           </div>
 
           {/* Trust text */}
           <p style={{ marginTop: 24, color: '#4a5a6a', fontSize: '0.82rem', fontFamily: 'Inter, sans-serif', letterSpacing: '0.02em' }}>
             <span style={{ color: '#00F5A0' }}>✓</span> No credit card required &nbsp;&nbsp;
-            <span style={{ color: '#00F5A0' }}>✓</span> Works instantly
+            <span style={{ color: '#00F5A0' }}>✓</span> Works instantly inline
           </p>
         </div>
 
@@ -144,6 +186,55 @@ export default function Hero() {
           </div>
         </div>
       </div>
+
+      {/* Inline Demo / Workout Preview Modal */}
+      <AnimatePresence>
+        {showDemoModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 1000,
+              background: 'rgba(5, 10, 22, 0.88)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '24px 16px',
+            }}
+            onClick={() => setShowDemoModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              transition={{ duration: 0.25 }}
+              style={{
+                width: '100%',
+                maxWidth: 1040,
+                maxHeight: '92vh',
+                background: '#070c18',
+                borderRadius: 20,
+                border: '1px solid rgba(0, 245, 160, 0.25)',
+                boxShadow: '0 25px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 245, 160, 0.15)',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <EmbeddedTrainer
+                username={user ? user.username : 'Guest'}
+                onClose={() => setShowDemoModal(false)}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <style>{`
         @keyframes scanLine { 0%,100%{top:8%;opacity:0} 20%{opacity:1} 80%{opacity:1} 98%{top:88%;opacity:0} }

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuth, type SignupData } from '../context/AuthContext';
 
 // ── Styling helpers ───────────────────────────────────────────────────────────
@@ -40,6 +40,8 @@ const STEPS = ['Account', 'Physical Stats', 'Goals'];
 export default function Signup() {
   const { signup } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get('redirect') || '/dashboard';
   const [step, setStep] = useState(0);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -51,8 +53,8 @@ export default function Signup() {
     fitness_goal: string; activity_level: string; injuries: string; workout_days: string;
   }>({
     username: '', password: '', confirmPassword: '',
-    age: '', gender: '', height_cm: '', weight_kg: '',
-    fitness_goal: '', activity_level: '', injuries: '', workout_days: '',
+    age: '25', gender: 'Male', height_cm: '175', weight_kg: '70',
+    fitness_goal: 'Fat Loss', activity_level: 'Moderate', injuries: 'None', workout_days: '4',
   });
 
   const set = (field: string, value: string) => setForm(f => ({ ...f, [field]: value }));
@@ -113,7 +115,7 @@ export default function Signup() {
         workout_days: parseInt(form.workout_days),
       };
       await signup(data);
-      navigate('/');
+      navigate(redirectPath);
     } catch (err: any) {
       setError(err?.response?.data?.detail || 'Sign-up failed. Please try again.');
     } finally {
@@ -170,10 +172,10 @@ export default function Signup() {
         position: 'relative', zIndex: 1,
       }}>
         {/* Logo */}
-        <a href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28, textDecoration: 'none' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28, textDecoration: 'none' }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #00F5A0, #00c8ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Manrope, sans-serif', fontWeight: 900, fontSize: 16, color: '#002e1e' }}>F</div>
           <span style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '1.2rem', color: '#e8f4ff' }}>FitAI</span>
-        </a>
+        </Link>
 
         <h1 style={{ fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: '1.65rem', color: '#e8f4ff', marginBottom: 4, letterSpacing: '-0.02em' }}>
           Create your account

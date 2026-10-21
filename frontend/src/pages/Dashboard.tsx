@@ -1,24 +1,74 @@
 import { useState, useEffect } from 'react';
 import type React from 'react';
 import { useAuth, type BmiHistoryPoint } from '../context/AuthContext';
-import { STREAMLIT_URL } from '../config';
 import { 
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area 
 } from 'recharts';
 import { 
   Activity, Scale, TrendingUp, Save, 
-  Target, Flame, Calendar, Info
+  Target, Flame, Calendar, Info, Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate, useLocation } from 'react-router-dom';
+import EmbeddedTrainer from '../components/EmbeddedTrainer';
+import Navbar from '../components/Navbar';
 
-export default function Dashboard() {
+interface DashboardProps {
+  defaultTab?: 'analytics' | 'trainer';
+}
+
+export default function Dashboard({ defaultTab }: DashboardProps) {
   const { user, updateStats, getBmiHistory } = useAuth();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const queryTab = searchParams.get('tab') || searchParams.get('view');
+  const isTrainerRoute = location.pathname.startsWith('/trainer') ||
+    location.pathname.startsWith('/app') ||
+    location.pathname.startsWith('/live-trainer') ||
+    location.pathname.startsWith('/workout') ||
+    location.pathname.startsWith('/exercise-tracker');
+
+  const [activeTab, setActiveTab] = useState<'analytics' | 'trainer'>(
+    isTrainerRoute || queryTab === 'trainer' ? 'trainer' : (defaultTab || 'analytics')
+  );
   const [height, setHeight] = useState(user?.height_cm || 170);
   const [weight, setWeight] = useState(user?.weight_kg || 70);
   const [history, setHistory] = useState<BmiHistoryPoint[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [showToast, setShowToast] = useState(false);
+
+  // Sync tab state whenever route changes (SPA back/forward navigation support)
+  useEffect(() => {
+    if (isTrainerRoute || queryTab === 'trainer') {
+      setActiveTab('trainer');
+    } else if (location.pathname === '/dashboard' || queryTab === 'analytics') {
+      setActiveTab('analytics');
+    } else if (defaultTab) {
+      setActiveTab(defaultTab);
+    }
+  }, [location.pathname, queryTab, defaultTab, isTrainerRoute]);
+
+  // Auth requirement: Analytics requires login, Trainer allows Guest preview
+  useEffect(() => {
+    if (!user && activeTab === 'analytics') {
+      navigate('/login?redirect=/dashboard');
+    }
+  }, [user, activeTab, navigate]);
+
+  const switchTab = (tab: 'analytics' | 'trainer') => {
+    if (tab === 'analytics' && !user) {
+      navigate('/login?redirect=/dashboard');
+      return;
+    }
+    setActiveTab(tab);
+    if (tab === 'trainer') {
+      navigate('/trainer');
+    } else {
+      navigate('/dashboard');
+    }
+  };
 
   useEffect(() => {
     if (user) {
@@ -29,11 +79,13 @@ export default function Dashboard() {
   }, [user]);
 
   const fetchHistory = async () => {
+    if (!user) return;
     const data = await getBmiHistory();
     setHistory(data);
   };
 
   const handleSave = async () => {
+    if (!user) return;
     setIsUpdating(true);
     try {
       await updateStats(height, weight);
@@ -54,33 +106,63 @@ export default function Dashboard() {
 
   const bmi = parseFloat(calculateBMI(height, weight));
 
-  const getBMICategory = (bmi: number) => {
-    if (bmi < 18.5) return { label: 'Underweight', color: '#3b82f6' };
-    if (bmi < 25) return { label: 'Normal', color: '#00F5A0' };
-    if (bmi < 30) return { label: 'Overweight', color: '#f59e0b' };
+  const getBMICategory = (bmiVal: number) => {
+    if (bmiVal < 18.5) return { label: 'Underweight', color: '#3b82f6' };
+    if (bmiVal < 25) return { label: 'Normal', color: '#00F5A0' };
+    if (bmiVal < 30) return { label: 'Overweight', color: '#f59e0b' };
     return { label: 'Obese', color: '#ef4444' };
   };
 
   const category = getBMICategory(bmi);
 
-  if (!user) return null;
+  if (!user && activeTab === 'analytics') return null;
 
   return (
     <div style={{ 
       minHeight: '100vh', 
       background: '#0a0f1e', 
       color: '#e8f4ff', 
-      padding: '100px 24px 40px',
       fontFamily: 'Inter, sans-serif'
     }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+      <Navbar />
+
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '100px 24px 40px' }}>
         
+        {/* Guest mode notification banner */}
+        {!user && activeTab === 'trainer' && (
+          <div style={{
+            marginBottom: 24,
+            padding: '14px 20px',
+            borderRadius: 14,
+            background: 'rgba(0, 200, 255, 0.08)',
+            border: '1px solid rgba(0, 200, 255, 0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 12,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: '1.2rem' }}>💡</span>
+              <span style={{ color: '#cde9ff', fontSize: '0.9rem' }}>
+                <strong>Guest Mode:</strong> AI Vision tracking is active inline. Log in or sign up to save your workout streaks and health metrics.
+              </span>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <Link to="/login?redirect=/trainer" style={{ padding: '6px 14px', borderRadius: 8, background: 'rgba(255,255,255,0.08)', color: '#e8f4ff', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 600 }}>Log In</Link>
+              <Link to="/signup" style={{ padding: '6px 14px', borderRadius: 8, background: 'linear-gradient(135deg, #00F5A0, #00c8ff)', color: '#002e1e', textDecoration: 'none', fontSize: '0.82rem', fontWeight: 700 }}>Sign Up Free</Link>
+            </div>
+          </div>
+        )}
+
         {/* Header */}
         <header style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center', 
-          marginBottom: 40 
+          marginBottom: 36,
+          flexWrap: 'wrap',
+          gap: 16
         }}>
           <div>
             <h1 style={{ 
@@ -92,18 +174,20 @@ export default function Dashboard() {
               WebkitTextFillColor: 'transparent',
               marginBottom: 8
             }}>
-              Welcome back, {user.username}!
+              {user ? `Welcome back, ${user.username}!` : 'FitAI Live Exercise Trainer'}
             </h1>
             <p style={{ color: '#8a9bb0', fontSize: '0.95rem' }}>
-              Track your fitness journey and health metrics.
+              {activeTab === 'trainer'
+                ? 'Real-time joint tracking, rep counting & posture coaching running inline.'
+                : 'Track your fitness journey and health metrics.'}
             </p>
           </div>
-          <div style={{ display: 'flex', gap: 16 }}>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
             <Link
               to="/"
               style={{
-                padding: '0.8rem 1.4rem', borderRadius: 12, cursor: 'pointer',
-                fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.9rem',
+                padding: '0.75rem 1.3rem', borderRadius: 12, cursor: 'pointer',
+                fontFamily: 'Inter, sans-serif', fontWeight: 600, fontSize: '0.88rem',
                 background: 'rgba(255,255,255,0.05)',
                 color: '#8a9bb0', textDecoration: 'none',
                 border: '1px solid rgba(255,255,255,0.1)',
@@ -115,26 +199,110 @@ export default function Dashboard() {
             >
               ← Back to Home
             </Link>
-            <a
-              href={`${STREAMLIT_URL}?username=${user.username}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              id="dashboard-view-toggle-btn"
+              onClick={() => switchTab(activeTab === 'trainer' ? 'analytics' : 'trainer')}
               style={{
-                padding: '0.8rem 1.8rem', borderRadius: 12, cursor: 'pointer',
+                padding: '0.75rem 1.6rem', borderRadius: 12, cursor: 'pointer',
                 fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '0.9rem',
-                background: 'linear-gradient(135deg, #00F5A0, #00c8ff)',
-                color: '#002e1e', textDecoration: 'none',
-                boxShadow: '0 8px 24px rgba(0,245,160,0.25)',
+                background: activeTab === 'trainer'
+                  ? 'rgba(0, 245, 160, 0.12)'
+                  : 'linear-gradient(135deg, #00F5A0, #00c8ff)',
+                color: activeTab === 'trainer' ? '#00F5A0' : '#002e1e',
+                border: activeTab === 'trainer' ? '1px solid rgba(0, 245, 160, 0.3)' : 'none',
+                boxShadow: activeTab === 'trainer' ? 'none' : '0 8px 24px rgba(0,245,160,0.25)',
                 transition: 'all 0.25s ease',
                 display: 'inline-flex', alignItems: 'center', gap: 8,
               }}
             >
-              <Activity size={18} /> Launch Trainer
-            </a>
+              {activeTab === 'trainer' ? (
+                <><TrendingUp size={18} /> View Analytics Hub</>
+              ) : (
+                <><Activity size={18} /> Launch AI Trainer</>
+              )}
+            </button>
           </div>
         </header>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 24 }}>
+        {/* Inline View Switcher Tabs */}
+        <div style={{
+          display: 'inline-flex',
+          padding: 5,
+          background: 'rgba(18, 25, 45, 0.7)',
+          backdropFilter: 'blur(16px)',
+          borderRadius: 16,
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          marginBottom: 28,
+          gap: 6
+        }}>
+          <button
+            id="tab-analytics-btn"
+            onClick={() => switchTab('analytics')}
+            style={{
+              padding: '9px 20px',
+              borderRadius: 12,
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'Manrope, sans-serif',
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              background: activeTab === 'analytics' ? 'rgba(0, 245, 160, 0.16)' : 'transparent',
+              color: activeTab === 'analytics' ? '#00F5A0' : '#8a9bb0',
+              boxShadow: activeTab === 'analytics' ? '0 0 16px rgba(0, 245, 160, 0.18)' : 'none',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <TrendingUp size={16} /> Health Analytics
+          </button>
+
+          <button
+            id="tab-trainer-btn"
+            onClick={() => switchTab('trainer')}
+            style={{
+              padding: '9px 20px',
+              borderRadius: 12,
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'Manrope, sans-serif',
+              fontWeight: 700,
+              fontSize: '0.88rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              background: activeTab === 'trainer' ? 'rgba(0, 200, 255, 0.18)' : 'transparent',
+              color: activeTab === 'trainer' ? '#00c8ff' : '#8a9bb0',
+              boxShadow: activeTab === 'trainer' ? '0 0 16px rgba(0, 200, 255, 0.2)' : 'none',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <Zap size={16} /> Live AI Trainer
+          </button>
+        </div>
+
+        {/* View Content (Inline SPA) */}
+        <AnimatePresence mode="wait">
+          {activeTab === 'trainer' ? (
+            <motion.div
+              key="trainer-view"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25 }}
+            >
+              <EmbeddedTrainer username={user ? user.username : 'Guest'} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="analytics-view"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.25 }}
+              style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: 24 }}
+            >
           
           {/* Left Column: Stats & Profile */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
@@ -287,19 +455,19 @@ export default function Dashboard() {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                 <div style={{ background: 'rgba(0,0,0,0.2)', padding: '12px 16px', borderRadius: 12 }}>
                   <div style={{ color: '#8a9bb0', fontSize: '0.75rem', marginBottom: 4 }}>Goal</div>
-                  <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user.fitness_goal}</div>
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user?.fitness_goal || 'General Fitness'}</div>
                 </div>
                 <div style={{ background: 'rgba(0,0,0,0.2)', padding: '12px 16px', borderRadius: 12 }}>
                   <div style={{ color: '#8a9bb0', fontSize: '0.75rem', marginBottom: 4 }}>Activity</div>
-                  <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user.activity_level}</div>
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user?.activity_level || 'Moderate'}</div>
                 </div>
                 <div style={{ background: 'rgba(0,0,0,0.2)', padding: '12px 16px', borderRadius: 12 }}>
                   <div style={{ color: '#8a9bb0', fontSize: '0.75rem', marginBottom: 4 }}>Age</div>
-                  <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user.age} yrs</div>
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user?.age || '--'} yrs</div>
                 </div>
                 <div style={{ background: 'rgba(0,0,0,0.2)', padding: '12px 16px', borderRadius: 12 }}>
                   <div style={{ color: '#8a9bb0', fontSize: '0.75rem', marginBottom: 4 }}>Gender</div>
-                  <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user.gender}</div>
+                  <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{user?.gender || 'Not specified'}</div>
                 </div>
               </div>
             </motion.div>
@@ -434,13 +602,15 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <div style={{ color: '#8a9bb0', fontSize: '0.85rem' }}>Workout Days</div>
-                  <div style={{ fontWeight: 700, fontSize: '1.2rem' }}>{user.workout_days} <span style={{ fontSize: '0.8rem', fontWeight: 400, color: '#4a5568' }}>/ week</span></div>
+                  <div style={{ fontWeight: 700, fontSize: '1.2rem' }}>{user?.workout_days || 0} <span style={{ fontSize: '0.8rem', fontWeight: 400, color: '#4a5568' }}>/ week</span></div>
                 </div>
               </motion.div>
             </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
 
       {/* Success Toast */}
       <AnimatePresence>

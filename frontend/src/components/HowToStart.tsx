@@ -201,7 +201,7 @@ export default function HowToStart() {
 
   return (
     // Outer scroll container — tall enough for the scroll hijack
-    <div ref={containerRef} style={{ height: '500vh', position: 'relative' }}>
+    <div id="how-to-start" ref={containerRef} style={{ height: '500vh', position: 'relative' }}>
       {/* Sticky inner viewport */}
       <div style={{ position: 'sticky', top: 0, height: '100vh', overflow: 'hidden', background: '#060c1a', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         {/* Background glows */}
