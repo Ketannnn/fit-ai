@@ -33,6 +33,12 @@ relevant_landmarks_indices = [
     mp_pose.PoseLandmark.RIGHT_ANKLE.value
 ]
 
+def render_frame(stframe, img):
+    try:
+        stframe.image(img, channels='BGR', use_column_width=True)
+    except TypeError:
+        stframe.image(img, channels='BGR', use_container_width=True)
+
 # Function to calculate angle between three points
 def calculate_angle(a, b, c):
     if np.any(np.array([a, b, c]) == 0):
@@ -344,7 +350,7 @@ class Exercise:
             # Allow Streamlit to handle events
             time.sleep(0.01)
 
-            stframe.image(frame, channels='BGR', use_container_width=True)
+            render_frame(stframe, frame)
             st.session_state['current_counters'] = counters.copy()
             
             if not st.session_state.get('exercise_running', True):
@@ -458,7 +464,7 @@ class Exercise:
 
                 # Update display at regular intervals
                 if current_time - last_update_time >= update_interval:
-                    stframe.image(img, channels='BGR', use_container_width=True)
+                    render_frame(stframe, img)
                     last_update_time = current_time
 
                 # Small sleep to prevent busy-waiting
@@ -493,7 +499,7 @@ class Exercise:
                         break
 
                 self.repetitions_counter(img, counter)
-                stframe.image(img, channels='BGR', use_container_width=True)
+                render_frame(stframe, img)
                 st.session_state['current_reps'] = counter
                 
                 # Allow Streamlit to handle events

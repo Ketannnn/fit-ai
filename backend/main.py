@@ -1,4 +1,14 @@
 import streamlit as st
+
+# Set configuration for the theme before any other Streamlit command
+st.set_page_config(page_title='Fitness AI Coach', layout='centered')
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+FASTAPI_BASE_URL = os.getenv("FASTAPI_BASE_URL", "http://127.0.0.1:8000")
+
 # from Audio import text_to_speech, get_audio
 import cv2
 import tempfile
@@ -6,8 +16,6 @@ import ExerciseAiTrainer as exercise
 from chatbot import chat_ui
 from voice_assistant import inject_voice_assistant
 import time
-import requests
-
 import requests
 
 
@@ -72,9 +80,6 @@ def list_to_diet(data_list):
 
 
 def main():
-    # Set configuration for the theme before any other Streamlit command
-    st.set_page_config(page_title='Fitness AI Coach', layout='centered')
-
     # ── User Profile from React Auth ─────────────────────────────────────────
     # React passes the logged-in username as a query param: ?username=yash
     query_params = st.query_params
@@ -83,7 +88,7 @@ def main():
 
     if username:
         try:
-            resp = requests.get(f"http://127.0.0.1:8000/profile/{username}", timeout=3)
+            resp = requests.get(f"{FASTAPI_BASE_URL}/profile/{username}", timeout=3)
             if resp.status_code == 200:
                 user_profile = resp.json()
                 st.session_state["user_profile"] = user_profile
